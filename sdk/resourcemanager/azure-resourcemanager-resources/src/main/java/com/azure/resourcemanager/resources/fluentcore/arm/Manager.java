@@ -7,7 +7,7 @@ import com.azure.core.http.HttpPipeline;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.resourcemanager.resources.ResourceManager;
-import com.azure.resourcemanager.resources.fluentcore.model.HasInner;
+import com.azure.resourcemanager.resources.fluentcore.model.HasServiceClient;
 import com.azure.resourcemanager.resources.fluentcore.utils.SdkContext;
 
 /**
@@ -15,14 +15,14 @@ import com.azure.resourcemanager.resources.fluentcore.utils.SdkContext;
  *
  * @param <InnerT> inner management client implementation type
  */
-public abstract class Manager<InnerT> implements HasInner<InnerT> {
+public abstract class Manager<InnerT> implements HasServiceClient<InnerT> {
     private ResourceManager resourceManager;
     private final String subscriptionId;
     private final AzureEnvironment environment;
     private final HttpPipeline httpPipeline;
     private final SdkContext sdkContext;
 
-    protected final InnerT innerManagementClient;
+    private final InnerT innerManagementClient;
 
     protected Manager(HttpPipeline httpPipeline, AzureProfile profile,
                       InnerT innerManagementClient, SdkContext sdkContext) {
@@ -39,7 +39,7 @@ public abstract class Manager<InnerT> implements HasInner<InnerT> {
     }
 
     @Override
-    public InnerT inner() {
+    public InnerT serviceClient() {
         return this.innerManagementClient;
     }
 

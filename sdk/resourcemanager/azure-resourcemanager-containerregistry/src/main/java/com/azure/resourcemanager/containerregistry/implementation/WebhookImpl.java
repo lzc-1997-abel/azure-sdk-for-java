@@ -100,17 +100,17 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
 
     @Override
     public String id() {
-        return this.inner().id();
+        return this.innerModel().id();
     }
 
     @Override
     public String type() {
-        return this.inner().type();
+        return this.innerModel().type();
     }
 
     @Override
     public String regionName() {
-        return this.inner().location();
+        return this.innerModel().location();
     }
 
     @Override
@@ -131,7 +131,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
 
     @Override
     public Map<String, String> tags() {
-        Map<String, String> tags = this.inner().tags();
+        Map<String, String> tags = this.innerModel().tags();
         if (tags == null) {
             tags = new TreeMap<>();
         }
@@ -140,12 +140,12 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
 
     @Override
     public boolean isEnabled() {
-        return this.inner().status().equals(WebhookStatus.ENABLED);
+        return this.innerModel().status().equals(WebhookStatus.ENABLED);
     }
 
     @Override
     public String scope() {
-        return this.inner().scope();
+        return this.innerModel().scope();
     }
 
     @Override
@@ -160,12 +160,12 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
 
     @Override
     public Collection<WebhookAction> triggers() {
-        return Collections.unmodifiableCollection(this.inner().actions());
+        return Collections.unmodifiableCollection(this.innerModel().actions());
     }
 
     @Override
     public ProvisioningState provisioningState() {
-        return this.inner().provisioningState();
+        return this.innerModel().provisioningState();
     }
 
     @Override
@@ -197,7 +197,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
     public String ping() {
         return this
             .containerRegistryManager
-            .inner()
+            .serviceClient()
             .getWebhooks()
             .ping(this.resourceGroupName, this.registryName, name())
             .id();
@@ -207,7 +207,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
     public Mono<String> pingAsync() {
         return this
             .containerRegistryManager
-            .inner()
+            .serviceClient()
             .getWebhooks()
             .pingAsync(this.resourceGroupName, this.registryName, name())
             .map(eventInfoInner -> eventInfoInner.id());
@@ -224,7 +224,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
 
         return this
             .containerRegistryManager
-            .inner()
+            .serviceClient()
             .getWebhooks()
             .listEventsAsync(self.resourceGroupName, self.registryName, self.name())
             .mapPage(inner -> new WebhookEventInfoImpl(inner));
@@ -236,7 +236,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
         if (webhookCreateParametersInner != null) {
             return this
                 .containerRegistryManager
-                .inner()
+                .serviceClient()
                 .getWebhooks()
                 .createAsync(self.resourceGroupName, this.registryName, this.name(), this.webhookCreateParametersInner)
                 .map(
@@ -265,7 +265,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
 
         return this
             .containerRegistryManager
-            .inner()
+            .serviceClient()
             .getWebhooks()
             .getCallbackConfigAsync(self.resourceGroupName, self.registryName, self.name())
             .map(
@@ -281,7 +281,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
         if (webhookUpdateParametersInner != null) {
             return this
                 .containerRegistryManager
-                .inner()
+                .serviceClient()
                 .getWebhooks()
                 .updateAsync(self.resourceGroupName, self.registryName, self.name(), self.webhookUpdateParametersInner)
                 .map(
@@ -300,7 +300,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
     public Mono<Void> deleteResourceAsync() {
         return this
             .containerRegistryManager
-            .inner()
+            .serviceClient()
             .getWebhooks()
             .deleteAsync(this.resourceGroupName, this.registryName, this.name());
     }
@@ -308,7 +308,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
     @Override
     protected Mono<WebhookInner> getInnerAsync() {
         final WebhookImpl self = this;
-        final WebhooksClient webhooksInner = this.containerRegistryManager.inner().getWebhooks();
+        final WebhooksClient webhooksInner = this.containerRegistryManager.serviceClient().getWebhooks();
         return webhooksInner
             .getAsync(this.resourceGroupName, this.registryName, this.name())
             .flatMap(
@@ -316,7 +316,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
                     self.setInner(webhookInner);
                     return webhooksInner.getCallbackConfigAsync(self.resourceGroupName, self.registryName, self.name());
                 })
-            .map(callbackConfigInner -> setCallbackConfig(callbackConfigInner).inner());
+            .map(callbackConfigInner -> setCallbackConfig(callbackConfigInner).innerModel());
     }
 
     @Override
@@ -358,7 +358,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
         if (tags != null) {
             this.tags = null;
             ensureValidTags();
-            for (Map.Entry<String, String> entry : inner().tags().entrySet()) {
+            for (Map.Entry<String, String> entry : innerModel().tags().entrySet()) {
                 this.tags.put(entry.getKey(), entry.getValue());
             }
         }
@@ -418,7 +418,7 @@ public class WebhookImpl extends ExternalChildResourceImpl<Webhook, WebhookInner
         if (customHeaders != null) {
             this.customHeaders = null;
             ensureValidCustomHeaders();
-            for (Map.Entry<String, String> entry : inner().tags().entrySet()) {
+            for (Map.Entry<String, String> entry : innerModel().tags().entrySet()) {
                 this.customHeaders.put(entry.getKey(), entry.getValue());
             }
         }

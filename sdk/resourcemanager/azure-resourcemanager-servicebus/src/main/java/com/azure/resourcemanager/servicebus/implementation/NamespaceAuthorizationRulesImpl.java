@@ -37,7 +37,7 @@ class NamespaceAuthorizationRulesImpl
                                     String namespaceName,
                                     Region region,
                                     ServiceBusManager manager) {
-        super(manager.inner().getNamespaces(), manager);
+        super(manager.serviceClient().getNamespaces(), manager);
         this.resourceGroupName = resourceGroupName;
         this.namespaceName = namespaceName;
         this.region = region;
@@ -50,22 +50,22 @@ class NamespaceAuthorizationRulesImpl
 
     @Override
     public Mono<Void> deleteByNameAsync(String name) {
-        return this.inner().deleteAuthorizationRuleAsync(this.resourceGroupName, this.namespaceName, name);
+        return this.innerModel().deleteAuthorizationRuleAsync(this.resourceGroupName, this.namespaceName, name);
     }
 
     @Override
     protected Mono<SharedAccessAuthorizationRuleResourceInner> getInnerByNameAsync(String name) {
-        return this.inner().getAuthorizationRuleAsync(this.resourceGroupName, this.namespaceName, name);
+        return this.innerModel().getAuthorizationRuleAsync(this.resourceGroupName, this.namespaceName, name);
     }
 
     @Override
     protected PagedFlux<SharedAccessAuthorizationRuleResourceInner> listInnerAsync() {
-        return this.inner().listAuthorizationRulesAsync(this.resourceGroupName, this.namespaceName);
+        return this.innerModel().listAuthorizationRulesAsync(this.resourceGroupName, this.namespaceName);
     }
 
     @Override
     protected PagedIterable<SharedAccessAuthorizationRuleResourceInner> listInner() {
-        return this.inner().listAuthorizationRules(this.resourceGroupName,
+        return this.innerModel().listAuthorizationRules(this.resourceGroupName,
                 this.namespaceName);
     }
 
