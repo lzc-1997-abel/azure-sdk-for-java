@@ -124,18 +124,18 @@ In `app.js`, make following changes. The client leverages Azure AD library for J
 window.applicationConfig = {
     clientID: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
 };
-
 msalProvider.init(
     {
-        authority: 'https://login.microsoftonline.com/<tenant>',
-        clientID: applicationConfig.clientID,
-        cacheLocation: 'localStorage',
-        postLogoutRedirectUri: 'http://localhost:8080/logout',
-
-        tokenReceivedCallback: function (errorDesc, token, error, tokenType) {
+        auth: {
+            clientId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            authority: "https://login.microsoftonline.com/<tenant>",
+            redirectUri: "http://localhost:8080",
         },
-    },
-    $httpProvider
+        cache: {
+            cacheLocation: "sessionStorage", // This configures where your cache will be stored
+            storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
+        }
+    }
 );
 ```
 
