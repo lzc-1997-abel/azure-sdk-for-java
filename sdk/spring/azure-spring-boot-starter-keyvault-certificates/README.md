@@ -188,46 +188,103 @@ spring:
 
 ### Creating an Azure Key Vault
 
-To create an Azure Key Vault use the command line below:
+1. Log into <https://portal.azure.com>.
 
-```shell
-  export KEY_VAULT=mykeyvault
-  export RESOURCE_GROUP=myresourcegroup
-  az keyvault create --name ${KEY_VAULT} -g ${RESOURCE_GROUP}
-```
+2. Select **Create a resource**, then eBrowse to the Azure portal atnter `Key Vault` in `Search the Marketplace` and select `Key vault`.
 
-### Create a self-signed certificate
+![Find Azure Key Vault Resource 01](resource/find-azure-key-vault-resource-01.png)
 
-To create a self-signed certificate use the command line below:
+![Find Azure Key Vault Resource 02](resource/find-azure-key-vault-resource-02.png)
 
-```shell
-  export CERTIFICATE_ALIAS=self-signed
-  az keyvault certificate create --vault-name ${KEY_VAULT} \
-    -n ${CERTIFICATE_ALIAS} -p "$(az keyvault certificate get-default-policy)"
-```
+3. Select **Create**.
 
-### Assign a managed identity (to an Azure Spring Cloud application)
+![Create new Key Vault](resource/create-new-key-vault.png)
 
-To assign a managed identity use the command line below:
+4. On the **Create key vault** page, enter the following information:
 
-```shell
-  export SPRING_CLOUD_APP=myspringcloudapp
-  az spring-cloud app identity assign --name ${SPRING_CLOUD_APP}
-  export MANAGED_IDENTITY=$(az spring-cloud app show \
-    --name ${SPRING_CLOUD_APP} --query identity.principalId --output tsv)
-```
+   * Choose the **Subscription** you want to use for your namespace.
+   * Specify whether to create a new **Resource group** for your namespace, or choose an existing resource group.
+   * Enter a unique **Key vault name**, which will become part of the URI for your Vault URI.
+   * Specify the **Region** for your Key vault.
+   * Pricing tier.
+   
+   When you have specified the options listed above, select **Review + Create**, review the specifications and select **Create** to Key vault. The deployment will take several minutes.
+
+![Specify the options](resource/specify-the-options.png)
+
+![Create Key Vault resource](resource/create-key-vault-resource.png)
+
+5. When complete, select `Go to resource`.
+
+![Go to resource](resource/go-to-resource.png)
+
+6. When the page for your app registration appears, copy your **Vault URI**;
+
+![Save vault uri](resource/save-vault-uri.png)
+
+### Create a certificate
+
+1. Click **Certificates** in the left navigation pane.  Then select **Generate/Import**.
+
+![Create Certificates](resource/create-certificates.png)
+
+2. Enter a **Certificates name**, and enter a **Subject** like `CN=mydomain.com`. then select **create**.
+
+![Specify Certificates Info](resource/specify-certificates-info.png)
+
+3. After the certificate is successfully created, it takes a while for the status to become `Enabled`. You can select **refresh** to check current status.
+
+![Check Certificates status](resource/check-certificates-status.png)
+
+### Assign a managed identity (to an Azure Active Directory application)
+
+1. Select **Show portal menu**, then **Azure Active Directory**.
+
+![Select Azure Active Directory](resource/select-azure-active-directory.png)
+
+2. From the portal menu, select **App registrations**, and then select **New registration**.
+
+![New registration](resource/new-registration.png)
+
+3. Specify your application, and then select **Register**.
+
+![Specify application](resource/specify-application.png)
+
+4. When the page for your app registration appears, copy your **Application ID** and the **Tenant ID**;
+
+![Get info for app](resource/get-info-for-app.png)
+
+5. Click **Certificates & secrets** in the left navigation pane.  Then select **New client secret**.
+
+6. Add a **Description** and select duration in the **Expires** list.  Click **Add**. The value for the key will be automatically filled in.
+   
+![Create secrets](resource/create-secrets.png)
+
+7. Copy and save the value of the client secret. (You will not be able to retrieve this value later.)
+
+![Copy secrets](resource/copy-secrets.png)
 
 ### Grant a managed identity with access to Azure Key Vault
 
-To grant access use the command line below:
+1. Type your key vault name in **Search resources, services, and docs** and select your key vault created before.
 
-```shell
-  az keyvault set-policy --name ${KEY_VAULT} \
-        --object-id ${MANAGED_IDENTITY} \
-        --key-permisssions get list \
-        --secret-permissions get list \
-        --certificate-permissions get list
-```
+![Back to key vault](resource/back-to-key-vault.png)
+
+2. Click **Access policies** in the left navigation pane. Then select **Add Access Policy**.
+
+![Add Access Policy](resource/add-access-policy.png)
+
+3. Select **Key, Secret, &Certificate Management** as **Configure for template(optional)**. Permissions will be added automatically. 
+
+![Select configure](resource/select-configure.png)
+
+4. Select **None selected** and choose application created before, click **Select**, then select **Add**.
+
+![Choose application](resource/choose-application.png)
+
+5. Select **Save**.
+
+![Save Access Policy](resource/save-access-policy.png)
 
 ### Side-loading certificates
 
