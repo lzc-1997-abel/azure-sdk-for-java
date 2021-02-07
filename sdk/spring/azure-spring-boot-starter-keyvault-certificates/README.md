@@ -20,34 +20,87 @@ Azure Key Vault Certificates Spring Boot Starter is Spring starter for [Azure Ke
 ```
 [//]: # ({x-version-update-end})
 
+### Creating an Azure Key Vault
+
+1. Log into <https://portal.azure.com>.
+
+2. Select **Create a resource**, then eBrowse to the Azure portal atnter `Key Vault` in `Search the Marketplace` and select `Key vault`.
+
+![Find Azure Key Vault Resource 01](resource/find-azure-key-vault-resource-01.png)
+
+![Find Azure Key Vault Resource 02](resource/find-azure-key-vault-resource-02.png)
+
+3. Select **Create**.
+
+![Create new Key Vault](resource/create-new-key-vault.png)
+
+4. On the **Create key vault** page, enter the following information:
+
+   * Choose the **Subscription** you want to use for your namespace.
+   * Specify whether to create a new **Resource group** for your namespace, or choose an existing resource group.
+   * Enter a unique **Key vault name**, which will become part of the URI for your Vault URI.
+   * Specify the **Region** for your Key vault.
+   * Pricing tier.
+   
+   When you have specified the options listed above, select **Review + Create**, review the specifications and select **Create** to Key vault. The deployment will take several minutes.
+
+![Specify the options](resource/specify-the-options.png)
+
+![Create Key Vault resource](resource/create-key-vault-resource.png)
+
+5. When complete, select `Go to resource`.
+
+![Go to resource](resource/go-to-resource.png)
+
+6. When the page for your app registration appears, copy your **Vault URI**;
+
+![Save vault uri](resource/save-vault-uri.png)
+
+7. Click **Certificates** in the left navigation pane.  Then select **Generate/Import**.
+
+![Create Certificates](resource/create-certificates.png)
+
+8. Enter a **Certificates name**, and enter a **Subject** like `CN=mydomain.com`. then select **create**.
+
+![Specify Certificates Info](resource/specify-certificates-info.png)
+
+9. After the certificate is successfully created, it takes a while for the status to become `Enabled`. You can select **refresh** to check current status.
+
+![Check Certificates status](resource/check-certificates-status.png)
+
 ## Key concepts
-This starter is based on a JCA Provider for Azure Key Vault which is a JCA provider for certificates in 
-Azure Key Vault. It is built on four principles:
- 
-1. Must be extremely thin to run within a JVM.
-1. Must not introduce any library version conflicts with Java app code dependencies.
-1. Must not introduce any class loader hierarchy conflicts with Java app code dependencies.
-1. Must be ready for "never trust, always verify and credential-free" Zero Trust environments.
+This starter allows you to securely manage and tightly control your certificates by using Azure Key Vault or side-load certificates by supplying them as part of the application.
 
 ## Examples
 ### Server side SSL
 
-#### Using a managed identity
-
-To use the starter for server side SSL, you will need to add the following to
-your `application.properties` (if the application is using Spring Cloud Config 
-Server for its configuration add it to the `bootstrap.yml` of the application)
-
-```
-azure.keyvault.uri=<the URI of the Azure Key Vault to use>
-server.ssl.key-alias=<the name of the certificate in Azure Key Vault to use>
-server.ssl.key-store-type=AzureKeyVault
-```
-
-Note: make sure the managed identity has access to the Azure Key Vault to access
-keys, secrets and certificates.
-
 #### Using a client ID and client secret
+
+1. Select **Show portal menu**, then **Azure Active Directory**.
+
+![Select Azure Active Directory](resource/select-azure-active-directory.png)
+
+2. From the portal menu, select **App registrations**, and then select **New registration**.
+
+![New registration](resource/new-registration.png)
+
+3. Specify your application, and then select **Register**.
+
+![Specify application](resource/specify-application.png)
+
+4. When the page for your app registration appears, copy your **Application ID** and the **Tenant ID**;
+
+![Get info for app](resource/get-info-for-app.png)
+
+5. Click **Certificates & secrets** in the left navigation pane.  Then select **New client secret**.
+
+6. Add a **Description** and select duration in the **Expires** list.  Click **Add**. The value for the key will be automatically filled in.
+   
+![Create secrets](resource/create-secrets.png)
+
+7. Copy and save the value of the client secret. (You will not be able to retrieve this value later.)
+
+![Copy secrets](resource/copy-secrets.png)
 
 To use the starter for server side SSL, you will need to add the following to
 your `application.properties` (if the application is using Spring Cloud Config 
@@ -65,44 +118,44 @@ server.ssl.key-store-type=AzureKeyVault
 Note: make sure the client ID has access to the Azure Key Vault to access
 keys, secrets and certificates.
 
-### Client side SSL
+Follow the steps below to grant a client with access to Azure Key Vault to access keys, secrets and certificates.
+
+1. Type your key vault name in **Search resources, services, and docs** and select your key vault created before.
+
+![Back to key vault](resource/back-to-key-vault.png)
+
+2. Click **Access policies** in the left navigation pane. Then select **Add Access Policy**.
+
+![Add Access Policy](resource/add-access-policy.png)
+
+3. Select **Key, Secret, &Certificate Management** as **Configure for template(optional)**. Permissions will be added automatically. 
+
+![Select configure](resource/select-configure.png)
+
+4. Select **None selected** and choose application created before, click **Select**, then select **Add**.
+
+![Choose application](resource/choose-application.png)
+
+5. Select **Save**.
+
+![Save Access Policy](resource/save-access-policy.png)
 
 #### Using a managed identity
 
-To use the starter for client side SSL, you will need to add the following to
+To use the starter for server side SSL, you will need to add the following to
 your `application.properties` (if the application is using Spring Cloud Config 
 Server for its configuration add it to the `bootstrap.yml` of the application)
 
 ```
 azure.keyvault.uri=<the URI of the Azure Key Vault to use>
+server.ssl.key-alias=<the name of the certificate in Azure Key Vault to use>
+server.ssl.key-store-type=AzureKeyVault
 ```
+
 Note: make sure the managed identity has access to the Azure Key Vault to access
 keys, secrets and certificates.
 
-If you are using `RestTemplate` use code similar to the example below.
-
-```java
-    @Bean
-    public RestTemplate restTemplate() throws Exception {
-        KeyStore ks = KeyStore.getInstance("AzureKeyVault");
-        SSLContext sslContext = SSLContexts.custom()
-            .loadTrustMaterial(ks, new TrustSelfSignedStrategy())
-            .build();
-
-        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
-
-        CloseableHttpClient httpClient = HttpClients.custom()
-            .setSSLSocketFactory(csf)
-            .build();
-
-        HttpComponentsClientHttpRequestFactory requestFactory =
-                        new HttpComponentsClientHttpRequestFactory();
-
-        requestFactory.setHttpClient(httpClient);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-        return restTemplate;
-    }
-```
+### Client side SSL
 
 #### Using a client ID and client secret
 
@@ -133,6 +186,43 @@ point:
 
         HostnameVerifier allowAll = (String hostName, SSLSession session) -> true;
         SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, allowAll);
+
+        CloseableHttpClient httpClient = HttpClients.custom()
+            .setSSLSocketFactory(csf)
+            .build();
+
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                        new HttpComponentsClientHttpRequestFactory();
+
+        requestFactory.setHttpClient(httpClient);
+        RestTemplate restTemplate = new RestTemplate(requestFactory);
+        return restTemplate;
+    }
+```
+
+#### Using a managed identity
+
+To use the starter for client side SSL, you will need to add the following to
+your `application.properties` (if the application is using Spring Cloud Config 
+Server for its configuration add it to the `bootstrap.yml` of the application)
+
+```
+azure.keyvault.uri=<the URI of the Azure Key Vault to use>
+```
+Note: make sure the managed identity has access to the Azure Key Vault to access
+keys, secrets and certificates.
+
+If you are using `RestTemplate` use code similar to the example below.
+
+```java
+    @Bean
+    public RestTemplate restTemplate() throws Exception {
+        KeyStore ks = KeyStore.getInstance("AzureKeyVault");
+        SSLContext sslContext = SSLContexts.custom()
+            .loadTrustMaterial(ks, new TrustSelfSignedStrategy())
+            .build();
+
+        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
 
         CloseableHttpClient httpClient = HttpClients.custom()
             .setSSLSocketFactory(csf)
@@ -185,106 +275,6 @@ spring:
         ssl:
           useInsecureTrustManager: true
 ```
-
-### Creating an Azure Key Vault
-
-1. Log into <https://portal.azure.com>.
-
-2. Select **Create a resource**, then eBrowse to the Azure portal atnter `Key Vault` in `Search the Marketplace` and select `Key vault`.
-
-![Find Azure Key Vault Resource 01](resource/find-azure-key-vault-resource-01.png)
-
-![Find Azure Key Vault Resource 02](resource/find-azure-key-vault-resource-02.png)
-
-3. Select **Create**.
-
-![Create new Key Vault](resource/create-new-key-vault.png)
-
-4. On the **Create key vault** page, enter the following information:
-
-   * Choose the **Subscription** you want to use for your namespace.
-   * Specify whether to create a new **Resource group** for your namespace, or choose an existing resource group.
-   * Enter a unique **Key vault name**, which will become part of the URI for your Vault URI.
-   * Specify the **Region** for your Key vault.
-   * Pricing tier.
-   
-   When you have specified the options listed above, select **Review + Create**, review the specifications and select **Create** to Key vault. The deployment will take several minutes.
-
-![Specify the options](resource/specify-the-options.png)
-
-![Create Key Vault resource](resource/create-key-vault-resource.png)
-
-5. When complete, select `Go to resource`.
-
-![Go to resource](resource/go-to-resource.png)
-
-6. When the page for your app registration appears, copy your **Vault URI**;
-
-![Save vault uri](resource/save-vault-uri.png)
-
-### Create a certificate
-
-1. Click **Certificates** in the left navigation pane.  Then select **Generate/Import**.
-
-![Create Certificates](resource/create-certificates.png)
-
-2. Enter a **Certificates name**, and enter a **Subject** like `CN=mydomain.com`. then select **create**.
-
-![Specify Certificates Info](resource/specify-certificates-info.png)
-
-3. After the certificate is successfully created, it takes a while for the status to become `Enabled`. You can select **refresh** to check current status.
-
-![Check Certificates status](resource/check-certificates-status.png)
-
-### Assign a managed identity (to an Azure Active Directory application)
-
-1. Select **Show portal menu**, then **Azure Active Directory**.
-
-![Select Azure Active Directory](resource/select-azure-active-directory.png)
-
-2. From the portal menu, select **App registrations**, and then select **New registration**.
-
-![New registration](resource/new-registration.png)
-
-3. Specify your application, and then select **Register**.
-
-![Specify application](resource/specify-application.png)
-
-4. When the page for your app registration appears, copy your **Application ID** and the **Tenant ID**;
-
-![Get info for app](resource/get-info-for-app.png)
-
-5. Click **Certificates & secrets** in the left navigation pane.  Then select **New client secret**.
-
-6. Add a **Description** and select duration in the **Expires** list.  Click **Add**. The value for the key will be automatically filled in.
-   
-![Create secrets](resource/create-secrets.png)
-
-7. Copy and save the value of the client secret. (You will not be able to retrieve this value later.)
-
-![Copy secrets](resource/copy-secrets.png)
-
-### Grant a managed identity with access to Azure Key Vault
-
-1. Type your key vault name in **Search resources, services, and docs** and select your key vault created before.
-
-![Back to key vault](resource/back-to-key-vault.png)
-
-2. Click **Access policies** in the left navigation pane. Then select **Add Access Policy**.
-
-![Add Access Policy](resource/add-access-policy.png)
-
-3. Select **Key, Secret, &Certificate Management** as **Configure for template(optional)**. Permissions will be added automatically. 
-
-![Select configure](resource/select-configure.png)
-
-4. Select **None selected** and choose application created before, click **Select**, then select **Add**.
-
-![Choose application](resource/choose-application.png)
-
-5. Select **Save**.
-
-![Save Access Policy](resource/save-access-policy.png)
 
 ### Side-loading certificates
 
