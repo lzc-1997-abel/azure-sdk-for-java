@@ -192,7 +192,7 @@ point:
             .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
-                        new HttpComponentsClientHttpRequestFactory();
+            new HttpComponentsClientHttpRequestFactory();
 
         requestFactory.setHttpClient(httpClient);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
@@ -230,7 +230,7 @@ If you are using `RestTemplate` use code similar to the example below.
             .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
-                        new HttpComponentsClientHttpRequestFactory();
+            new HttpComponentsClientHttpRequestFactory();
 
         requestFactory.setHttpClient(httpClient);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
