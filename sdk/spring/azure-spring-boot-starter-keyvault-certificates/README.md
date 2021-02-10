@@ -177,27 +177,27 @@ point:
 
 <!-- embedme ../azure-spring-boot/src/samples/java/com/azure/spring/keyvault/KeyVaultJcaClientSample.java#L21-L41 -->
 ```java
-    @Bean
-    public RestTemplate restTemplate() throws Exception {
-        KeyStore ks = KeyStore.getInstance("AzureKeyVault");
-        SSLContext sslContext = SSLContexts.custom()
-            .loadTrustMaterial(ks, new TrustSelfSignedStrategy())
-            .build();
+@Bean
+public RestTemplate restTemplate() throws Exception {
+    KeyStore ks = KeyStore.getInstance("AzureKeyVault");
+    SSLContext sslContext = SSLContexts.custom()
+        .loadTrustMaterial(ks, new TrustSelfSignedStrategy())
+        .build();
 
-        HostnameVerifier allowAll = (String hostName, SSLSession session) -> true;
-        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, allowAll);
+    HostnameVerifier allowAll = (String hostName, SSLSession session) -> true;
+    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext, allowAll);
 
-        CloseableHttpClient httpClient = HttpClients.custom()
-            .setSSLSocketFactory(csf)
-            .build();
+    CloseableHttpClient httpClient = HttpClients.custom()
+        .setSSLSocketFactory(csf)
+        .build();
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-            new HttpComponentsClientHttpRequestFactory();
+    HttpComponentsClientHttpRequestFactory requestFactory =
+                new HttpComponentsClientHttpRequestFactory();
 
-        requestFactory.setHttpClient(httpClient);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-        return restTemplate;
-    }
+    requestFactory.setHttpClient(httpClient);
+    RestTemplate restTemplate = new RestTemplate(requestFactory);
+    return restTemplate;
+}
 ```
 
 #### Using a managed identity
@@ -216,26 +216,26 @@ If you are using `RestTemplate` use code similar to the example below.
 
 <!-- embedme ../azure-spring-boot/src/samples/java/com/azure/spring/keyvault/KeyVaultJcaManagedIdentitySample.java#L19-L38 -->
 ```java
-    @Bean
-    public RestTemplate restTemplate() throws Exception {
-        KeyStore ks = KeyStore.getInstance("AzureKeyVault");
-        SSLContext sslContext = SSLContexts.custom()
-            .loadTrustMaterial(ks, new TrustSelfSignedStrategy())
-            .build();
+@Bean
+public RestTemplate restTemplate() throws Exception {
+    KeyStore ks = KeyStore.getInstance("AzureKeyVault");
+    SSLContext sslContext = SSLContexts.custom()
+        .loadTrustMaterial(ks, new TrustSelfSignedStrategy())
+        .build();
 
-        SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
+    SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
 
-        CloseableHttpClient httpClient = HttpClients.custom()
-            .setSSLSocketFactory(csf)
-            .build();
+    CloseableHttpClient httpClient = HttpClients.custom()
+        .setSSLSocketFactory(csf)
+        .build();
 
-        HttpComponentsClientHttpRequestFactory requestFactory =
-            new HttpComponentsClientHttpRequestFactory();
+    HttpComponentsClientHttpRequestFactory requestFactory =
+                new HttpComponentsClientHttpRequestFactory();
 
-        requestFactory.setHttpClient(httpClient);
-        RestTemplate restTemplate = new RestTemplate(requestFactory);
-        return restTemplate;
-    }
+    requestFactory.setHttpClient(httpClient);
+    RestTemplate restTemplate = new RestTemplate(requestFactory);
+    return restTemplate;
+}
 ```
 
 ### Configuring Spring Cloud Gateway

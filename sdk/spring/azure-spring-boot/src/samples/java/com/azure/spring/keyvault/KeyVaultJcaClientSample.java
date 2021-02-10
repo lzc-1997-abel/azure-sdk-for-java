@@ -33,7 +33,7 @@ public class KeyVaultJcaClientSample {
             .build();
 
         HttpComponentsClientHttpRequestFactory requestFactory =
-            new HttpComponentsClientHttpRequestFactory();
+                    new HttpComponentsClientHttpRequestFactory();
 
         requestFactory.setHttpClient(httpClient);
         RestTemplate restTemplate = new RestTemplate(requestFactory);
