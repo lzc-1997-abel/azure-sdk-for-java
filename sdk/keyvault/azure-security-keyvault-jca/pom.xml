@@ -48,6 +48,7 @@
                         </goals>
                         <configuration>
                             <createSourcesJar>false</createSourcesJar>
+                            <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>
                             <relocations>
                                 <relocation>
                                     <pattern>com.fasterxml.jackson</pattern>
