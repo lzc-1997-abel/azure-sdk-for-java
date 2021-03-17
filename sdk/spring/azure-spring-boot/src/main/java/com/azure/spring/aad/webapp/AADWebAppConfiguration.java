@@ -99,7 +99,7 @@ public class AADWebAppConfiguration {
     private Set<String> authorizationCodeScopes() {
         Set<String> result = accessTokenScopes();
         for (AuthorizationClientProperties authProperties : properties.getAuthorizationClients().values()) {
-            if (!authProperties.isOnDemand()) {
+            if (!authProperties.isOnDemand() && !authProperties.isClientCredential()) {
                 result.addAll(authProperties.getScopes());
             }
         }
@@ -151,7 +151,7 @@ public class AADWebAppConfiguration {
     private ClientRegistration createClientBuilder(String id, AuthorizationClientProperties authz) {
         ClientRegistration.Builder result = createClientBuilder(id , authz.getAuthorizationGrantType());
         List<String> scopes = authz.getScopes();
-        if (authz.isOnDemand()) {
+        if (authz.isOnDemand() && !authz.isClientCredential()) {
             if (!scopes.contains("openid")) {
                 scopes.add("openid");
             }

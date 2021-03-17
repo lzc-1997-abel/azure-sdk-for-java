@@ -3,6 +3,8 @@
 
 package com.azure.spring.aad.webapp;
 
+import com.azure.spring.aad.AADAuthorizationGrantType;
+
 import java.util.List;
 
 /**
@@ -34,6 +36,10 @@ public class AuthorizationClientProperties {
 
     public boolean isOnDemand() {
         return onDemand;
+    }
+
+    public boolean isClientCredential(){
+        return AADAuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equals(authorizationGrantType);
     }
 
     public void setOnDemand(boolean onDemand) {
