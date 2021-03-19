@@ -21,6 +21,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageDeliveryException;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.concurrent.ListenableFutureCallback;
@@ -52,6 +53,7 @@ public class DefaultMessageHandler extends AbstractMessageProducingHandler {
     private Expression sendTimeoutExpression = new ValueExpression<>(DEFAULT_SEND_TIMEOUT);
     private ErrorMessageStrategy errorMessageStrategy = new DefaultErrorMessageStrategy();
     private Expression partitionKeyExpression;
+    private Expression partitionIdExpression;
     private MessageChannel sendFailureChannel;
     private String sendFailureChannelName;
 
@@ -147,8 +149,8 @@ public class DefaultMessageHandler extends AbstractMessageProducingHandler {
         this.partitionKeyExpression = partitionKeyExpression;
     }
 
-    public void setPartitionKeyExpressionString(String partitionKeyExpression) {
-        setPartitionKeyExpression(EXPRESSION_PARSER.parseExpression(partitionKeyExpression));
+    public void setPartitionIdExpression(Expression partitionIdExpression) {
+        this.partitionIdExpression = partitionIdExpression;
     }
 
     private String toDestination(Message<?> message) {
@@ -161,17 +163,26 @@ public class DefaultMessageHandler extends AbstractMessageProducingHandler {
 
     private PartitionSupplier toPartitionSupplier(Message<?> message) {
         PartitionSupplier partitionSupplier = new PartitionSupplier();
-        String partitionKey = message.getHeaders().get(AzureHeaders.PARTITION_KEY, String.class);
-        if (!StringUtils.hasText(partitionKey) && this.partitionKeyExpression != null) {
-            partitionKey = this.partitionKeyExpression.getValue(this.evaluationContext, message, String.class);
-        }
-
-        if (StringUtils.hasText(partitionKey)) {
-            partitionSupplier.setPartitionKey(partitionKey);
-        }
-
-        if (message.getHeaders().containsKey(AzureHeaders.PARTITION_ID)) {
-            partitionSupplier.setPartitionId(message.getHeaders().get(AzureHeaders.PARTITION_ID, String.class));
+        MessageHeaders headers = message.getHeaders();
+        // Priority setting partitionId
+        String partitionId = this.partitionIdExpression != null
+            ? this.partitionIdExpression.getValue(this.evaluationContext, message, String.class)
+            : headers.keySet().stream()
+                     .filter(header -> AzureHeaders.PARTITION_ID.equals(header))
+                     .map(key -> String.valueOf(headers.get(key)))
+                     .findAny()
+                     .orElse(null);
+        if (StringUtils.hasText(partitionId)) {
+            partitionSupplier.setPartitionId(partitionId);
+        } else {
+            // The default key expression is the hash code of the payload.
+            if (this.partitionKeyExpression != null) {
+                String partitionKey = this.partitionKeyExpression.getValue(this.evaluationContext,
+                    message, String.class);
+                if (StringUtils.hasText(partitionKey)) {
+                    partitionSupplier.setPartitionKey(partitionKey);
+                }
+            }
         }
         return partitionSupplier;
     }
@@ -181,7 +192,6 @@ public class DefaultMessageHandler extends AbstractMessageProducingHandler {
         properties.put("sync", sync);
         properties.put("sendTimeout", sendTimeoutExpression);
         properties.put("destination", destination);
-
         return properties;
     }
 
