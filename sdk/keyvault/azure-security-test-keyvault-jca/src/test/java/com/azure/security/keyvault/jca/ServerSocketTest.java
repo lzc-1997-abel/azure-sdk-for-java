@@ -30,7 +30,7 @@ import java.security.cert.X509Certificate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * The unit test validating the ServerSocket is created using a certificate 
+ * The unit test validating the ServerSocket is created using a certificate
  * from Azure Key Vault.
  */
 public class ServerSocketTest {

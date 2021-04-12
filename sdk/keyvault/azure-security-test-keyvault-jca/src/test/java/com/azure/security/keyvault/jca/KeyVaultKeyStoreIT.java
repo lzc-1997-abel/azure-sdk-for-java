@@ -3,7 +3,9 @@
 
 package com.azure.security.keyvault.jca;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.security.ProviderException;
@@ -11,6 +13,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,7 +23,25 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * The JUnit tests for the KeyVaultKeyStore class.
  */
-public class KeyVaultKeyStoreTest {
+public class KeyVaultKeyStoreIT {
+
+    public static void putEnvironmentPropertyToSystemProperty(String key) {
+        Optional.of(key)
+            .map(System::getenv)
+            .filter(StringUtils::hasText)
+            .ifPresent(value -> System.getProperties().put(key, value));
+    }
+
+
+    @BeforeEach
+    public void setEnv() {
+        putEnvironmentPropertyToSystemProperty("azure.keyvault.uri");
+        putEnvironmentPropertyToSystemProperty("azure.keyvault.aad-authentication-url");
+        putEnvironmentPropertyToSystemProperty("azure.keyvault.tenant-id");
+        putEnvironmentPropertyToSystemProperty("azure.keyvault.client-id");
+        putEnvironmentPropertyToSystemProperty("azure.keyvault.client-secret");
+    }
+
 
     /**
      * Stores the CER test certificate (which is valid til 2120).

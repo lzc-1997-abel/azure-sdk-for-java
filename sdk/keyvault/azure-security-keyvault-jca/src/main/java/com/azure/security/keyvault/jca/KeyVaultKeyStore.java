@@ -71,8 +71,8 @@ public final class KeyVaultKeyStore extends KeyStoreSpi {
      *
      * <p>
      * The constructor uses System.getProperty for
-     * <code>azure.keyvault.uri</code>, 
-     * <code>azure.keyvault.aadAuthenticationUrl</code>, 
+     * <code>azure.keyvault.uri</code>,
+     * <code>azure.keyvault.aadAuthenticationUrl</code>,
      * <code>azure.keyvault.tenantId</code>,
      * <code>azure.keyvault.clientId</code>,
      * <code>azure.keyvault.clientSecret</code> and
@@ -126,6 +126,9 @@ public final class KeyVaultKeyStore extends KeyStoreSpi {
             certificate = keyVaultClient.getCertificate(alias);
             if (certificate != null) {
                 certificates.put(alias, certificate);
+                if (aliases == null) {
+                    aliases = keyVaultClient.getAliases();
+                }
                 if (!aliases.contains(alias)) {
                     aliases.add(alias);
                 }
