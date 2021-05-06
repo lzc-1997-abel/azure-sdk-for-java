@@ -36,11 +36,13 @@ and bill at [this link][azure-account].
     service principal or managed identity, update the `application-sp.yaml` or 
     `application-mi.yaml` respectively.
 
-
     ```yaml
     spring:
       cloud:
         stream:
+          # To specify which functional bean to bind to the external destination(s) exposed by the bindings
+          function:
+            definition: consume1;supply1;consume2;supply2
           bindings:
             consume1-in-0:
               destination: [eventhub-1-name]
@@ -49,7 +51,7 @@ and bill at [this link][azure-account].
               destination: [the-same-eventhub-1-name-as-above]
             consume2-in-0:
               binder: eventhub-2
-              destination: [eventhub-1-name]
+              destination: [eventhub-2-name]
               group: [consumer-group]
             supply2-out-0:
               binder: eventhub-2
@@ -88,14 +90,9 @@ and bill at [this link][azure-account].
               consume2-in-0:
                 consumer:
                   checkpoint-mode: MANUAL
-    
-          #To specify which functional bean to bind to the external destination(s) exposed by the bindings
-          function:
-            definition: consume1;supply1;consume2;supply2;
           poller:
             initial-delay: 0
             fixed-delay: 1000
-           
     ```
 
 > The **defaultCandidate** configuration item:

@@ -163,8 +163,11 @@ public class Configuration {
     @Parameter(names = "-bulkloadBatchSize", description = "Control the number of documents uploaded in each BulkExecutor load iteration (Only supported for the LinkedInCtlWorkload)")
     private int bulkloadBatchSize = 200000;
 
-    @Parameter(names = "-testScenario", description = "The test scenario (GET, SQL) for the LinkedInCtlWorkload")
+    @Parameter(names = "-testScenario", description = "The test scenario (GET, QUERY) for the LinkedInCtlWorkload")
     private String testScenario = "GET";
+
+    @Parameter(names = "-accountNameInGraphiteReporter", description = "if set, account name with be appended in graphite reporter")
+    private boolean accountNameInGraphiteReporter = false;
 
     public enum Environment {
         Daily,   // This is the CTL environment where we run the workload for a fixed number of hours
@@ -281,6 +284,10 @@ public class Configuration {
 
     public boolean isSync() {
         return useSync;
+    }
+
+    public boolean isAccountNameInGraphiteReporter() {
+        return accountNameInGraphiteReporter;
     }
 
     public Duration getMaxRunningTimeDuration() {
