@@ -208,20 +208,17 @@ Make sure the managed identity can access target Key Vault.
 
 Configure a `RestTemplate` bean which set the `AzureKeyVault` as trust store:
 
-<!-- embedme ../azure-spring-boot/src/samples/java/com/azure/spring/keyvault/KeyVaultJcaManagedIdentitySample.java#L47-L68 -->
+<!-- embedme ../azure-spring-boot/src/samples/java/com/azure/spring/keyvault/KeyVaultJcaManagedIdentitySample.java#L18-L36 -->
 ```java
 @Bean
-public RestTemplate restTemplateWithMTLS() throws Exception {
-    KeyStore azureKeyVaultKeyStore = KeyStore.getInstance("AzureKeyVault");
+public RestTemplate restTemplateCreatedByManagedIdentity() throws Exception {
+    KeyStore trustStore = KeyStore.getInstance("AzureKeyVault");
     KeyVaultLoadStoreParameter parameter = new KeyVaultLoadStoreParameter(
         System.getProperty("azure.keyvault.uri"),
-        System.getProperty("azure.keyvault.tenant-id"),
-        System.getProperty("azure.keyvault.client-id"),
-        System.getProperty("azure.keyvault.client-secret"));
-    azureKeyVaultKeyStore.load(parameter);
+        System.getProperty("azure.keyvault.managed-identity"));
+    trustStore.load(parameter);
     SSLContext sslContext = SSLContexts.custom()
-                                       .loadTrustMaterial(azureKeyVaultKeyStore, null)
-                                       .loadKeyMaterial(azureKeyVaultKeyStore, "".toCharArray(), new ClientPrivateKeyStrategy())
+                                       .loadTrustMaterial(trustStore, null)
                                        .build();
     SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext,
         (hostname, session) -> true);
@@ -248,11 +245,17 @@ server:
 
 Step 2. On the client side, update `RestTemplate`. Example:
 
-<!-- embedme ../azure-spring-boot-samples/azure-spring-boot-sample-keyvault-certificates-client-side/src/main/java/com/azure/spring/security/keyvault/certificates/sample/client/side/SampleApplicationConfiguration.java#L41-L63 -->
+<!-- embedme ../azure-spring-boot-samples/azure-spring-boot-sample-keyvault-certificates-client-side/src/main/java/com/azure/spring/security/keyvault/certificates/sample/client/side/SampleApplicationConfiguration.java#L47-L75 -->
 ```java
 @Bean
 public RestTemplate restTemplateWithMTLS() throws Exception {
-    KeyStore azureKeyVaultKeyStore = KeyVaultCertificateFunctions.getKeyStore();
+    KeyStore azureKeyVaultKeyStore = KeyStore.getInstance("AzureKeyVault");
+    KeyVaultLoadStoreParameter parameter = new KeyVaultLoadStoreParameter(
+        System.getProperty("azure.keyvault.uri"),
+        System.getProperty("azure.keyvault.tenant-id"),
+        System.getProperty("azure.keyvault.client-id"),
+        System.getProperty("azure.keyvault.client-secret"));
+    azureKeyVaultKeyStore.load(parameter);
     SSLContext sslContext = SSLContexts.custom()
                                        .loadTrustMaterial(azureKeyVaultKeyStore, null)
                                        .loadKeyMaterial(azureKeyVaultKeyStore, "".toCharArray(), new ClientPrivateKeyStrategy())
