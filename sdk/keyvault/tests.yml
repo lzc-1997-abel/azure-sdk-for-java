@@ -7,15 +7,6 @@ stages:
       MaxParallel: 7
       ServiceDirectory: keyvault
       Artifacts:
-        - name: azure-security-keyvault-certificates
-          groupId: com.azure
-          safeName: azuresecuritykeyvaultcertificates
-        - name: azure-security-keyvault-keys
-          groupId: com.azure
-          safeName: azuresecuritykeyvaultkeys
-        - name: azure-security-keyvault-secrets
-          groupId: com.azure
-          safeName: azuresecuritykeyvaultsecrets
         - name: azure-security-test-keyvault-jca
           groupId: com.azure
           safeName: azuresecuritytestkeyvaultjca
